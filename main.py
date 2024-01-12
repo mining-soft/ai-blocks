@@ -1,14 +1,26 @@
-from typing import Optional
-
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+class Item(BaseModel):
+    name: str
+    price: float
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+
+class ResponseMessage(BaseModel):
+    message: str
+
+
+@app.post("/items/", response_model=ResponseMessage)
+async def create_item(item: Item):
+    return {"message": "item received"}
+
+
+@app.get("/items/", response_model=list[Item])
+async def get_items():
+    return [
+        {"name": "Plumbus", "price": 3},
+        {"name": "Portal Gun", "price": 9001},
+    ]
